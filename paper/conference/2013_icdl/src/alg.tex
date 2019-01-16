@@ -1,0 +1,309 @@
+\section{Algorithm}
+\label{sec:Algorithm}
+
+In this section, we present our computational model by considering the following cases: 1) feedback instructions 2) guidance instructions, and 3) how to include known sources of instructions
+
+Our goal is to learn simultaneously a task $\xi$ and the meaning of the instructions $n$ provided by the user. We assume such instructions are represented in a fixed length feature vector with continuous values that are generated from a probabilistic model. For each particular task $\xi$ we only assume that we are able to compute a policy $\pi$, which represents the probability of choosing a given action $a$ in a given state $s$, $\pi^{\xi}(s,a)=p(a|s,\xi)$.
+%for a particular task $\xi$ we are able to compute its corresponding policy $\pi$, which represents the probability of choosing a given action $a$ in a given state $s$, $\pi^{\xi}(s,a)=p(a|s,\xi)$.
+We consider that the human-robot interaction sessions give data in the form $\{(s_i,a_i,n_i),\ i = 1,\ldots,m\}$, i.e. a sequence of states, actions and teaching signals triplets. At each iteration the robot performs one action and waits for the instruction from the teacher.
+%It is important to note that the teaching signal is provided only after the sequence ${s,a,s'}$ has been observed by the teacher. The problem of temporal assignement is not considered here and will be solved in pratice by the use of a contolled protocol.
+%
+%Our goal is to simultaneously find a set of parameters $\theta$ and $\xi$ that represents both the associated meaning of the teaching signals and the task that the user is teaching. We present the algorithm in two parts: first we assume the task is known ($\xi$) and then we show how to learn the task and the signal meanings simultaneously.
+%
+%If $n_i$ is a feedback signal, it is related to the optimality of choosing action $a_i$ in state $s_i$. If $n_i$ is a guidance signal, it is related to the optimal action to choose in state $s_{i+1}$. 
+%
+\subsection{Learning the Instructions Meaning}
+%
+We start by assuming that the teacher provides a simple binary feedback whose meaning $f$ can be in $F=\{\texttt{correct},\texttt{wrong}\}$. For each feedback, the user produces a signal in natural language that might be a corresponding word (e.g. \textit{``ok'', ``good'', ``bad'', ``wrong''}). In this first step we want to learn the parameters $\theta$ of the signal production model:
+% 
+\begin{equation}
+\theta^* = \arg\max_\theta~p(n|s,a,\xi,\theta)
+\label{eq:initprob}
+\end{equation}
+%
+This model is very difficult to identify but if we would have access to an hidden variable $z$, representing the meaning of the instruction that the user said, it would be simplified and represented as $p(n|z,\theta)$ where $n$ is the signal observed. This meaning is generated according to the following model $p(z|s,a,\xi)=p(z|f)p(f|s,a,\xi)$ where $p(f|s,a,\xi)$ represents the ideal feedback for task $\xi$ when the teacher observes action $a$ in state $s$, and $p(z|f)$ consider what the user actually provided as feedback, considering the way he likes to provide it and also the mistakes he makes. The component $p(f|s,a,\xi)$ is fixed and derives directly from the task representation used. We do not assume any particular structure for $p(z|f)$ and even allow it to be different for each sample. This allows for a larger variety of teacher behaviors including the statistics of errors made on the instructions. Due to these reasons, and without lack of generality we will always refer to $p(z|s,a,\xi)$.
+
+Due to the uncertainty in the expected meaning $z$, the task model $\xi$, variability in the feedback signals $n$ (e.g. words are never pronounced the same way) and occasional teaching mistakes, we are not sure if each instruction produced by the teacher corresponds to the meaning \texttt{correct} or \texttt{wrong}. As we are in the presence of a hidden information problem we will rely on an \textit{Expectation-Maximization algorithm} (EM) to solve the problem in Eq.~\ref{eq:initprob}.
+
+We start by defining the complete likelihood model:
+%
+\begin{eqnarray}
+\L(\theta,\xi) &=&  p(n|s,a,\xi,\theta)\nonumber\\
+			   %&=&  \prod_{i} p(n_i | s_i, a_i, \xi, \theta)\nonumber\\
+			   &=& \prod_{i} \L_{i}(\theta,\xi)\nonumber
+\end{eqnarray}			
+with
+\begin{eqnarray}
+\L_i(\theta,\xi) &=&  p(n_i|s_i,a_i,\xi,\theta)\nonumber\\
+				&=&	\sum_{j \in F} p(n_i|z = j,s_i,a_i,\xi,\theta)~p(z = j|s_i,a_i,\xi,\theta)	\nonumber\\
+				&=&	\sum_{j \in F} \underbrace{p(n_i|z = j,\theta)}_{\text{instruction}}~\underbrace{p(z = j|s_i,a_i,\xi)}_{\text{meaning}}	\nonumber\\
+				&=&	\sum_{j \in F} p(n_i|z = j,\theta)~z_{ij}^{\xi}
+				\label{eq:lik}
+\end{eqnarray}
+
+%\begin{eqnarray}
+%\L_i &=&  p(n_i|s_i,a_i,\xi,\theta)\nonumber\\
+%				&=&	\sum_{j \in F} p(n_i|z = j,s_i,a_i,\xi,\theta)~p(z = j|s_i,a_i,\xi,\theta)	\nonumber\\
+%				&=&	\sum_{j \in F} \underbrace{p(n_i|z = j,\theta)}_{\text{instruction}}~\underbrace{p(z = j|s_i,a_i,\xi)}_{\text{meaning}}	\nonumber\\
+%				&=&	\sum_{j \in F} p(n_i|z = j,\theta)~z_{ij}^{\xi}
+%				\label{eq:lik}
+%\end{eqnarray}
+%
+with $z_{ij}^{\xi} = p(z = j|s_i,a_i,\xi)$. Where in the second step we introduce the hidden variable $z$ as described earlier. The meaning $z$ depends only on the state-action pair $(s,a)$ evaluated in the scope of the task $\xi$. The instruction $n$ depends solely on the signal generation model, parameterized by $\theta$, corresponding to the meaning (i.e. the class) $z$. The ML estimate of $\theta$ is found by maximizing $\log{\L}$. We first perform the \textit{expectation} step by defining the $F(\theta|\theta^t)$ function for a given task $\xi$:
+%
+%\begin{eqnarray}
+%	F(\theta|\theta^t) &=& \sum_{ij} \log{(\L_i)}~p(z_i=j|n_i,s_i,a_i,\xi,\theta^t)\nonumber\\
+%					&=& \sum_{ij} \left(\log{p(n_i|z_i,\theta)}+\log{z_i^{\xi}}\right) w_{ij}
+%					\label{eq:F}
+%\end{eqnarray}
+\begin{eqnarray}
+F(\theta|\theta^t) &=& \mathbb{E}[\log{\L(\theta)}| n, s, a, \xi, \theta^t]\nonumber\\
+                   &=& \sum_i \sum_{j \in F} \log{\L_{ij}(\theta)}~p(z=j|n_i,s_i,a_i,\xi,\theta^t)\nonumber\\
+                   &=& \sum_i \sum_{j \in F} \left(\log{p(n_i|z=j,\theta)}+\log{z_{ij}^{\xi}}\right) w_{ij}
+					\label{eq:F}
+\end{eqnarray}
+%
+with
+\begin{eqnarray*}
+ w_{ij} &=& p(z=j|n_i,s_i,a_i,\xi,\theta^t)\\
+        &\propto& p(n_i|z=j,s_i,a_i,\xi,\theta^t)~p(z=j|s_i,a_i,\xi,\theta^t)\\
+		&=& p(n_i|z=j,\theta^t)~p(z=j|s_i,a_i,\xi)\\
+\end{eqnarray*}
+%
+The \textit{M-step} is the maximization of Eq.~\ref{eq:F}:
+%
+\begin{equation}
+\theta^{t+1} = \arg\max_{\theta} F(\theta|\theta^t) 
+\label{eq:m-step}
+\end{equation}
+%
+This step depends on the specific statistical models we use for the instruction learning, i.e. the classifier. If they are modeled as gaussian distributions then the usual equations for a gaussian mixture hold and we can solve the maximization problem analytically. As for more complex interactions the instructions produced by the teacher will be more complex we will also try learning algorithm with a higher capacity, e.g. \textit{SVMs}. If such classifier is not able to use probabilistic labels, we approximate Eq.~\ref{eq:F} with a hard threshold for $z_{ij}^{\xi}$ and train the SVM on the corresponding dataset. The full process is summarized in Algorithm \ref{alg:simpleem}.
+%
+\begin{algorithm}
+\caption{EM for learning Instructions Meaning}
+\begin{algorithmic}[1]
+\REQUIRE Data $\{(s_i,a_i,n_i),\ i = 1,\ldots,m\}$
+\REQUIRE Task $\xi$
+\WHILE{\TRUE} 
+\STATE E-Step \\ $F(\theta|\theta^t) = \sum_{ij} \left(\log{p(n_i|z=j,\theta)}+\log{z_{ij}^\xi}\right) w_{ij}$ \\
+$w_{ij} = p(n_i|z=j,\theta^t)~p(z=j|s_i,a_i,\xi)$
+\STATE M-Step \\ $\theta^{t+1} = \arg\max_{\theta} F(\theta|\theta^t)$
+\ENDWHILE
+\end{algorithmic}
+\label{alg:simpleem}
+\end{algorithm}
+
+\subsection{The guidance case}
+
+The version presented above is well suited to learn instructions that correspond to \texttt{correct} or \texttt{wrong}. We can devise another interaction scheme where the teacher provides the names of actions to be done and the robot has to learn which action do each instruction corresponds to. We can see these instructions as a guidance signal or a voice operated remote control. We can deal with this situation by redefining the meaning of $z$. Now this variable indicates the name of the optimal action in state $s$ according to task $\xi$. We define $G$ as the set of guidance meanings, i.e. the name of the possible action. Under this new definition we can change the likelihood function to:
+%
+\begin{eqnarray}
+\L_{i}(\theta,\xi) &=&  p(n_i|s_i,a_i,\xi,\theta)\nonumber\\
+				&=&	\sum_{j \in G} p(n_i|z = j,\theta)~p(z = j|s_i,\xi)	\nonumber\\
+				&=&	\sum_{j \in G} p(n_i|z = j,\theta)~z_{ij}^{\xi}
+				\label{eq:likact}
+\end{eqnarray}
+%
+with $z_{ij}^{\xi} = p(z = j|s_i,\xi)$ and where we dropped the dependence on the action.
+
+\subsection{Learning Simultaneously a Task and Instructions Meaning}
+
+We now relax the assumption that we have an estimation of what the task is: we consider that the learner is able to sample tasks from a finite set according to a given distribution. The goal is to find, from this distribution, the task $\xi^*$ that is closer to the one the user is teaching to the robot. At each iteration the algorithm evaluates the likelihood of every task hypothesis. For this, it needs to apply Algorithm \ref{alg:simpleem} for every task hypothesis. The global process of simultaneously estimating the task and the instruction model is shown in Algorithm \ref{alg:interlearn}.
+
+\begin{algorithm}
+\caption{Learning Simultaneously a Task and Instructions Meaning}
+\begin{algorithmic}[1]
+%\REQUIRE Set of $m$ possible actions $A$ 
+%\REQUIRE Set of $n$ possible states $S$
+%\STATE Sample $l$ different tasks $\xi_1,\ldots,\xi_l$
+\REQUIRE Set of $l$ different tasks hypothesis $\xi_1,\ldots,\xi_l$
+\STATE $i = 1$
+\STATE $s_1 \leftarrow$ current state
+\WHILE{\TRUE} 
+	\STATE Choose and apply action $a_i$
+	\STATE Observe next state $s_{i+1}$ and user instructions $n_i$
+	\FORALL{$k=1,\ldots,l$}		
+		\STATE From Algorithm \ref{alg:simpleem} find:\\
+		$\theta_k = \arg\max_{\theta} F(\theta|\theta^0, \xi_k)$\\
+		$q_k(\xi_k) = \L(\theta_k, \xi_k)$
+	\ENDFOR
+	%\STATE $\xi^*=\arg\max_k \L(\theta_k(\xi_k))$
+	\STATE Resample $\xi_k$, $k = 1,\ldots,l$ according to $q_k(\xi_k)$	
+	\STATE $i \leftarrow i+1$
+\ENDWHILE
+\RETURN $q_k(\xi_k),\ \xi_k,\  k = 1,\ldots,l $
+\end{algorithmic}
+\label{alg:interlearn}
+\end{algorithm}
+
+We are now simultaneously solving two optimization problems. We are trying to select the best task hypothesis and the best instruction-to-meaning mapping. We have to rely on an approximation to avoid the computation of all possible pairs of tasks and meaning models. To do so we first optimize the meaning model for each task hypothesis using Alg. \ref{alg:simpleem}. Then, for the list of possible tasks we compute the likelihood of the observed data to give us the posterior distribution of tasks. As there might be no feasible task, we have to use the noiseless version of the feedback model as the likelihood in Step 7 of Alg. \ref{alg:interlearn}.
+
+An intuition on how the algorithm works is to imagine the agent assigning hypothetic labels (i.e. meanings) to instructions for each task of the distribution. The agent is updating as many models as task hypothesis and is looking for the one from which emerges a coherence in the interpretation of the instructions. Here, we are assuming that if the correct labels are known, signals of same meaning (e.g. utterances of the same word) can be identified with good accuracy using the chosen classifier parameterized by $\theta$. % Such structure is estimated ($\L_i$) based on the performance of a classifier parameterized by $\theta$. 
+In case of a gaussian classifier, $\theta$ represents the mean and covariance of each class. The algorithm will start failing if signals used for different meanings cannot be differentiated by the classifier, or if the classifier is overfitting the data.
+
+%The main difficulty of simultaneously learning both task and teaching signals is the existence of local minima in the sense that for different tasks the same signals could be interpreted in different ways. Consider for instance the case of a Nx1 grid world, where the agent has to learn to reach the leftmost state. Note that, in this specific case, if we change the correct to incorrect feedback in all the states, it is possible to find another task, e.g. going to the rightmost state, that verifies the conditions in all states. This particular property between hypothesis is called symmetry. Our algorithm can not differentiate fully symmetric tasks. However it is always possible to break the symmetry, in our example by adding a ``stop'' action that is valid only at the goal state.
+
+The computational complexity of the algorithm grows linearly with the number of possible hypothesis and with the number of data-points. Even with such a low complexity, for some problems the number of possible hypothesis might be very large. The complexity of this algorithm can be reduced in two ways. First we can consider a reduced set of task hypothesis and apply a resample step according to the estimated likelihoods, as shown in Step 10. Another way to reduce the complexity is to consider that the dataset does not cover the whole state-space. Because of this, Step 7 does not need to be applied to all hypothesis but only to the equivalence classes of the policies induced by the hypothesis set according to the dataset.
+
+\subsection{Including prior knowledge}
+
+Although we took such a difficult challenge of learning without assuming knowledge of the instructions, for a practical case, it is more reasonable to combine pre-specified instructions with an adaptation to new ones. For instance, the robot might be equipped with a console with a simple interface such as a green and a red button corresponding to correct and incorrect feedback and we want to combine this information with unknown sources of instructions.
+%Such known source of information may help the agent learning the task and infering the meaning of received instruction.
+
+The use of those extra sources of information is straightforward in our statistical formalism: we can change the likelihood model from Eq.~\ref{eq:lik} and extend the model $p(z|s,a,\xi)$ with an observed variable $d$ representing the noisy (in terms of teaching mistakes) but known feedback. The model becomes:
+%
+\begin{eqnarray}
+\L_{i}(\theta, \xi) &=&  p(n_i,d_i|s_i,a_i,\xi,\theta)\nonumber\\
+				&=&	\sum_{j} p(n_i|z = j,\theta)~p(d_i|z = j)~p(z = j|s_i,a_i,\xi)\nonumber\\
+				\label{eq:lik2}
+\end{eqnarray}
+%
+In this way we still accept that the human does not use the pre-define interface or that it makes mistakes. In the former case we just assume $p(d|z)=1$ and we recover the original likelihood function, in the latter the complete rule will take the noise into account. Identically, if the user does not provide any known instructions, we just assume $p(n|z,\theta)=1$.
+
+
+\begin{comment}
+\section{Algorithm}
+\label{sec:Algorithm}
+
+Our goal is to learn simultaneously a task $\xi$ and the meaning of the teaching signals $n$ provided by the user.  %Contrary to other approaches (e.g. \cite{macl11simul}) we are interested in the case where the signals are real social signals, in particular real speech like in the presented experiments, but this could also be gestures or facial expressions. 
+We assume such signals are represented in a fixed length feature vector and are generated from a probabilistic model $p(n|z,\theta)$ where $n$ is the signal observed, $z$ is the meaning of the signal among a pre-defined set of possible meanings and $\theta$ are the parameters of this model.
+
+We do not make particular assumptions on how the task is represented and just assume that for a particular task $\xi$ we are able to compute a policy $\pi$ which represents, for a given task $\xi$, the probability of choosing a given action $a$ in a given state $s$, $\pi^{\xi}(s,a)=p(a|s,\xi)$. We also assume that we have a model of the teaching protocol that gives us the probability of receiving a given feedback $z$ from a user $p(z|s,a,\xi)$. We further assume that from a human-robot interaction session we acquire data in the form $\{(s_i,a_i,n_i),\ i = 1,\ldots,m\}$, i.e. a sequence of states, actions and teaching signals sounds triplets. The problem of temporal assignement is not considered here and will be solved in pratice by the use of a contolled protocol.
+
+Our goal is to simultaneously find a set of parameters $\theta$ and $\xi$ that represents both the utterances of the user and the task that the user is teaching. We present the algorithm in two parts: first we assume that we have an estimation of what the task might be $\xi$ and then we show how to learn the task and the signal meanings simultaneously.
+
+\subsection{Learning the teaching signals}
+\label{sec:learnfeed}
+
+We start by assuming that the teacher provides a simple binary feedback which meaning can be either \texttt{correct} or \texttt{wrong}. For each feedback, the user produces a signal in natural language that might be a corresponding word (e.g. \textit{``ok'', ``correct'', ``good'', ``bad'', ``wrong''}, or any other word, or even an interjection). In this first step we want to learn the parameters $\theta$ of the signal production model:
+ 
+\begin{equation}
+\theta = \arg\max_\theta p(n|s,a,z,\theta)
+\label{eq:initprob}
+\end{equation}
+
+The parameters could be trivially found if we knew the corresponding meaning (i.e. \texttt{correct} or \texttt{wrong}) of each signal produced by the teacher. However, in realisitic scenario, we can differentiate two different sources of noise: 
+
+\begin{itemize}
+\item Noise from the teaching signals, where two signals of same meaning are not represented identically in the feature space. For example, in the case of spoken words, identical words are never prononced exactly the same way (prosody, speed,...) and therefore form clusters of points in the feature space.
+
+\item Noise from teaching mistakes, where the user gives an erroneous signal to the robot, e.g. saying ``wrong" when the robot action was correct. 
+\end{itemize}
+
+Due to this uncertainty, we are in the presence of an hidden information problem. Therefore we will rely on an \textit{Expectation-Maximization algorithm} (EM) to solve the problem in Eq.~\ref{eq:initprob}.
+
+We start by defining the complete likelihood model:
+%
+\begin{eqnarray}
+\L_i &=&  p(n_i,z_i|s_i,a_i,\xi,\theta)\nonumber\\
+				&=&	p(n_i|z_i,s_i,a_i,\xi,\theta)	p(z_i|s_i,a_i,\xi,\theta)	\nonumber\\
+				&=&	\underbrace{p(n_i|z_i,\theta)}_{\text{sign model}}	\underbrace{p(z_i|s_i,a_i,\xi)}_{\text{meaning model}}	\nonumber\\
+				&=&	p(n_i|z_i,\theta) z_i^{\xi}
+				\label{eq:lik}
+\end{eqnarray}
+
+with $z_i^{\xi} = p(z_i|s_i,a_i,\xi)$. We first perform the \textit{expectation} step by defining the $F(\theta|\theta^t)$ function:
+
+\begin{eqnarray}
+	F(\theta|\theta^t) &=& \sum_{ij} \log{(\L_i)} p(z_i=j|n_i,s_i,a_i,\xi,\theta^t)\nonumber\\
+					&=& \sum_{ij} \left(\log{p(n_i|z_i,\theta)}+\log{z_i^{\xi}}\right) w_{ij}
+					\label{eq:F}
+\end{eqnarray}
+
+with
+\begin{eqnarray*}
+ w_{ij} &=& p(z_i=j|n_i,s_i,a_i,\xi,\theta^t)\\
+ w_{ij} &\propto& p(n_i|z_i,s_i,a_i,\xi,\theta^t)	p(z_i|s_i,a_i,\xi,\theta^t)\\
+		&=& p(n_i|z_i,\theta^t)	p(z_i|s_i,a_i,\xi)\\
+\end{eqnarray*}
+
+\vspace{-0.4cm} The \textit{M-step} is the maximization of Eq.~\ref{eq:F}:
+
+\begin{equation}
+\theta^{t+1} = \arg\max_{\theta} F(\theta|\theta^t) 
+\label{eq:m-step}
+\end{equation}
+
+This step depends on the specific statistical models we use for the symbol learning. If they are modeled as gaussian distributions then the usual equations for a gaussian mixture hold and we can solve the maximization problem analytically. As for more complex interactions the signals produced by the teacher will be more complex we will also try learning machines with an higher capacity, e.g. \textit{SVMs}. In this case we approximate Eq.~\ref{eq:F} with an hard threshold for $z_i^{\xi}$ and train the SVM on the corresponding dataset.
+
+This process is summarized in Algorithm \ref{alg:simpleem}.
+%
+\begin{algorithm}
+\caption{EM for learning Signals}
+\begin{algorithmic}[1]
+\REQUIRE Data $\{(s_i,a_i,n_i),\ i = 1,\ldots,m\}$
+\REQUIRE Task $\xi$
+\WHILE{\TRUE} 
+\STATE E-Step \\ $F(\theta|\theta^t) = \sum_{ij} \left(\log{p(n_i|z_i,\theta)}+\log{z_i^\xi}\right) w_{ij}$ \\
+$w_{ij} = p(n_i|z_i,\theta^t)	p(z_i|s_i,a_i,\xi)$
+\STATE M-Step \\ $\theta^{t+1} = \arg\max_{\theta} F(\theta|\theta^t)$
+\ENDWHILE
+\end{algorithmic}
+\label{alg:simpleem}
+\end{algorithm}
+
+The version presented above is well suited to learn signals that correspond to \texttt{correct} or \texttt{wrong}. We can devise another interaction scheme where the teacher provides the names of actions to be done and the robot has to learn which actions do each word corresponds to. We can see these instructions as a guidance signal or a voice operated remote control. We can deal with this situation by redefining the meaning of $z$. Now this variable indicates the action name you expect to receive in state $s$ according to task $\xi$, $p(z=a|s,\xi)$. Under this new definition we can change the likelihood function to:
+%
+\begin{eqnarray}
+\L_i &=&  p(n_i,z_i|s_i,\xi,\theta)\nonumber\\
+				%&=&	p(n_i|z_i,s_i,\xi,\theta)	p(z_i|s_i,\xi,\theta)	\nonumber\\
+				&=&	p(n_i|z_i,\theta)	 p(z_i|s_i,\xi)	\nonumber\\
+				&=&	p(n_i|z_i,\theta) z_i^{\xi}
+				\label{eq:likact}
+\end{eqnarray}
+
+\subsection{Learning simultaneously a task and teaching signals}
+\label{sec:LearningSimultaneouslyTaskAndFeedbackSigns}
+
+We now relax the assumption that we have an estimation of what the task might be $\xi$. We consider that the agent is able to generate tasks from a given distribution. The goal is to find, from this distribution, the task that is closer to the task the user is teaching to the robot $\xi^*$. At each iteration the algorithm evaluates the likelihood of every task hypothesis. For this, it needs to apply Algorithm \ref{alg:simpleem} for every task hypothesis. The global process of simultaneously estimate the task and the signal model is shown in Algorithm \ref{alg:interlearn}.
+
+\begin{algorithm}
+\caption{Learning Simultaneously Tasks and Feedback Signals}
+\begin{algorithmic}[1]
+\REQUIRE Set of $m$ possible actions $A$ 
+\REQUIRE Set of $n$ possible states $S$
+\STATE Sample $l$ different tasks $\xi_1,\ldots,\xi_l$
+\STATE $s_1 \leftarrow s_0$
+\STATE $i = 1$
+\WHILE{\TRUE} 
+	\STATE Choose and apply action $a_i$
+	\STATE Observe next state $y_i$ and user teaching signals $n_i$	
+	\FORALL{$k=1,\ldots,l$}		
+		\STATE From Algorithm \ref{alg:simpleem} find:\\
+		$\theta_k = \arg\max_{\theta} F(\theta|\theta^0, \xi_k)$\\
+		$q_k(\xi_k) = \L(\theta_k, \xi_k)$
+	\ENDFOR
+	%\STATE $\xi^*=\arg\max_k \L(\theta_k(\xi_k))$
+	\STATE Resample $\xi_k,  k = 1,\ldots,l$ according to $q_k(\xi_k)$
+	\STATE $s_{i+1} \leftarrow y_i$
+	\STATE $i \leftarrow i+1$
+\ENDWHILE
+\RETURN $q_k(\xi_k),\ \xi_k,\  k = 1,\ldots,l $
+\end{algorithmic}
+\label{alg:interlearn}
+\end{algorithm}
+
+The main difficulty of simultaneously learning both task and teaching signals is the existence of local minima in the sense that for a given task the same signals could be interpreted in a different way for a different task. Consider for instance the case of a grid world, where the agent has to learn to reach the upper-left corner. Note that, in this specific case, if we change the correct to incorrect feedback in all the states, it is possible to find another task, e.g. going to the lower-right corner, that verifies the conditions in almost all states. In this case only the border states break the symmetry. Our algorithm can not differentiate fully symmetric tasks. However it is always possible to break the symmetry, in our example, adding a ``stop'' action, that is valid only at the goal state, will work. 
+
+An intuition on how the algorithm works is to imagine the agent assigning hypothetic labels (i.e. meanings) to signals for each task of the distribution. The agent is updating as many models as task hypothesis and is looking for the one from which emerges a coherent structure in the signals (i.e. $\arg\max_{k} q_k(\xi_k)$. We are assuming here that signals of same meaning (e.g. utterances of the same word) are grouped in clusters in the feature space. Such structure is estimated ($\L_i$) based on the performance of a classifier parameterized by $\theta$. In case of a gaussian classifier, $\theta$ represents the mean and covariance of each cluster. The algorithm will start failing if signals used for different meanings cannot be differientiate by the classifier, or if the classifier is overfitting the data.
+
+The complexity of this algorithm can be reduced in two ways. First we can consider a reduced set of task hypothesis and apply a resample step according to the estimated likelihoods, as shown in Step 10. Another way to reduce the complexity is to consider that the dataset does not cover the whole state-space. Because of this, Step 7 does not need to be applied to all hypothesis but only to the equivalence classes of the policies induced by the hypothesis set according to the dataset.
+
+\subsection{Including prior knowledge}
+\label{sec:IncludingPriorKnowledge}
+
+Although we took such a difficult challenge of learning without assuming knowledge of the teaching signals, for a practical case it is more reasonable to combine pre-specified signals with an adaptation to new ones. For instance, the robot might be equipped with a console with a simple interface such as a green and a red button corresponding to correct and incorrect feedback.
+
+The use of those extra sources of information is straightforward in our statistical formalism. For this we can change the likelihood model from Eq.~\ref{eq:lik} and extend the model $p(z|s,a,\xi)$ with an observed variable $d$ representing the noisy but known feedback. The model becomes:
+
+\begin{eqnarray}
+\L' &=&  p(n,z,d|s,a,\xi,\theta)\nonumber\\
+				&=&	p(n|z,d,s,a,\xi,\theta)	p(z,d|s,a,\xi,\theta)	\nonumber\\
+				&=&	p(n|z,\theta)	p(d|z,s,a,\xi)	p(z|s,a,\xi) \nonumber\\
+				&=&	p(n|z,\theta)	p(d|z)	p(z|s,a,\xi) \nonumber\\
+				&=&	p(n|z,\theta) z^{\xi,d}
+				\label{eq:lik2}
+\end{eqnarray}
+
+In this way we still accept that the human does not use the interface or that it makes mistakes. In the former case we just assume $p(d|z)=1$ and we recover the original likelihood function, in the latter the complete rule will take the noise into account. Identically, if the user does not provide any signals, we just assume $p(n|z,\theta)=1$.
+\end{comment}

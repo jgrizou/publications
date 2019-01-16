@@ -1,0 +1,16 @@
+Accept
+
+The paper describes an algorithm, simulation and real-robot experiments in which a robot co-learns instruction-meaning association and a new task from a pre-defined possible task-space. The instructions are given via spoken words and the task space is given from a set of a finite reward distribution. The authors also describe how to integrate a-priori knowledge into the system as well as known instructions, e.g. buttons. The algorithm is very interesting and the analysis of its performance is thorough. The authors show that indeed the robot learns a new task as well as the association between the instructor’s spoken words and their meaning. They also show that its efficiency can be increased by a-priori knowledge and fully known feedback. Applying learned associations to a new task is also shown to be beneficial.
+
+However, the overall readability of the algorithm section is problematic. I was a little confused regarding n, f, z: which is the instruction, which is the meaning and what is the third one? A really short example in this stage can increase the reader’s understanding.
+Also, in Section II.A: (i) after equation (1), \hat\xi is not defined. (ii) In equation (2), the transition from second to third line is not explained [where did the dependence on s and a gone?]. (iii) Some verbal meaning to variables could help, such as z_{ij}^\hat\xi and w_{ij}.
+In Section II.B: G is defined but not used in equation (5), why? Where is the usage of the optimal action given?
+In contrast, Section III.A is written very well and presents some very interesting ways to simplify the real space to a manageable representational space, e.g. generation of task spaces and speech-to-feature. The results section is also written well and the analysis is very informative.
+
+Also the paper is riddled with Typos (here is a small set):
+Abstract: “…whose associated unknown meaning…”
+Abstract: “.. the meaning of unknown and noisy …”
+P. 2, left column, second par. from end, 2nd line: “…known…”, n is missing
+P. 5, right column, second par from end, 4th line: Sentence begins with “To can …”.
+P. 7, left column, Par. beginning with 4), 5th line from end: “…known…” n is missing.
+P. 7, left column, second par from end, 3rd line from beginning: “…led…”  “… lead …”

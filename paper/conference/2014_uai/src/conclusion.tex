@@ -1,0 +1,52 @@
+%!TEX root = aaai2014.tex
+\section{CONCLUSION}
+\label{sec:conclusion}
+
+
+%Discuss the limits (we need to know which model will be able to differentiate the data beforehand therefore we can not test and tune different classifiers, we should not overfit, we should know where to look for), perspectives. Here again first saying that it is interesting to think about this problem. And only then to open to possible application.
+
+
+In this paper we have shown that, given a limited number of possible tasks, it is possible to solve sequential tasks using human feedback without defining a map between feedback signals and their meaning beforehand. The proposed algorithm optimizes a pseudo-likelihood function and performs active planing according to the uncertainty in the task and meaning spaces. Indeed, taking into account this uncertainty is crucial to solve the task efficiently and to recover the actual meanings. This combination allows: 
+\begin{inparaenum}[a)]
+\item a human to start interacting with a system without calibration;
+\item to automatically adapt calibration time to the user needs which can even outperform fixed calibration procedures; 
+\item to adapt to the uncertainty of the information source from scratch.
+\end{inparaenum}
+We showed the applicability of the approach to brain-machine interfaces based on error potentials which could work out of the box without calibration, a long-desired property of this type of systems.  
+
+%It allows
+%\begin{inparaenum}[a)]
+%\item a human to start interacting with a system using its own prefered signal
+%\item to learn a first task faster and more reliably than with a calibration procedure
+%\item to adapt to the uncertainty of the information source from scratch.
+%\end{inparaenum}
+%%
+%%An important assumption of our method is that it is possible to define a finite — and reasonable — set of task hypothesis. This assumption is limiting for many theoretical problems but many useful real word application can still benefit from it Such as the problem of grasping, on a table, one object among a finite set of objects. In this scenario the set of hypothesis consist of all the objects on the table.
+
+%If confirmed on real online experiments, results from EEG datasets demonstrate the real-world application potential of our algorithm. Without the need for calibration, which requires an expert to collect data and train the classifier, BCI technologies may go out of the labs.
+
+% An assumption of the system is that the classifier used is well suited to represent the signals, whereas a calibration procedure allow to test and tune the classifier once the data are acquired.
+% Symetrics cases: We note we need to ensure there is at least one action that disambiguate among hypothesis.
+A number of open questions remain to be addressed:
+\begin{itemize}
+
+\item How the task properties (symmetries, size, \ldots) affect the learning properties?
+
+\item How to leverage from the finite set of hypothesis constraint? A potential avenue is to use a combination of particle filter and regularization on the task space.
+
+% \cite{orsborn2012closed}?
+ % phase versus our self-calibration method?
+
+ % \item In invasive BCIs, Orsborn et al. \cite{Orsborn2012} learned to adapt in closed loop a brain decoder. 
+
+\item In real-world applications, users are usually told how to interact with machines. Do people want to have an open-ended choice about what signal to use? Would they be more efficient? When is it better to use a calibration procedure?
+
+\item Only prerecorded datasets have been used. However, signals may change during the learning. For instance, people can try to adapt themselves to a robot if they believe the latter is not understanding properly. Or, brain signals are sensitive to the protocol, the duration of the experiment or even the percentage of errors made by the agent \cite{chavarriaga2010learning}. To which extend the behavior of our agent changes the properties of the teaching signal? Can we adapt to such changes online? 
+\end{itemize}
+
+%The work is also relevant with regards to infant social development and learning, as well as in adult mutual adaptation of social cues. This has been the subject of experiments in experimental semiotics \cite{galantucci2009experimental}, such as in the work of Griffiths et al. \cite{griffiths2012bottom} who conducted an experiment with human learners learning the meaning of unknown symbolic teaching signals. An innovative direction would be to embed the algorithmic principles introduced in this paper for experimental linguistics studies.
+
+Finally, while we only considered correct/incorrect labels, in other works we have considered the use of guidance instructions (go up, go left, ...) in human-robot interaction scenario \cite{grizou2013robot}. But increasing the set of possible labels logically requires collecting more examples to obtain a good enough representation of the different signals. Hence, for BCI domains, it is reasonable to keep a limited number of labels.
+
+
+

@@ -1,0 +1,11 @@
+Accept
+
+Interesting work that proposes an algorithm to simultaneously learn the meaning of verbal instructions given by a human to a robot and the task to be performed. A very important point of this work is that it does not rely on classical speech recognisers but on a distance metric to some prototype words . Anyway, the paper could be improved in a number of ways, mainly to improve readability and better explain the assumptions that underlie the work. The authors mention several times that the algorithm is general and does not make particular assumptions on how the task and the instructions are represented. This creates a lot of expectation in the reader that soon becomes disappointed because there are hard assumptions that must be made about the algorithms: the task must be represented as a goal state in discrete state-space, the robot must know the mode of interaction (instruction vs feedback), the feedback model for each task must be known, the possible tasks are known and finite, the robot has prior knowledge about the distribution of possible tasks, the robot has planning skills, other ? The authors should define very clearly, already in the introduction, the assumptions and domain of validity of their work. Also in the introduction the authors should explain the two different modes of operation: feedback or instruction. This only becomes clear very late in the paper.
+Other points for improvement:
+1 - The explanation of the algorithm (section II) should be accompanied with examples as in the provided video. Also, a graphical model describing the independence assumptions would facilitate the comprehension.
+2 - Interaction data is provided by three signals: state (si), action (ai) and instruction (ni) but it is called a quadruplet ?
+3 - f and z are both called the "meaning" of the instruction. Please clarify ?
+4 - Task symbol (\xi) sometimes wears a hat, sometimes don't. Why ?
+5 - In eq (2) what represents index i ? Time ? Experience (combination state-action) index ?
+6 - In eq (3), what is z_i^{\xi} ? Should it be z_{ij}^{\xi} ? The same undefined symbol appears just before algorithm 1 and later in the paper.
+7 - In the guidance case, what is the role of f ? 

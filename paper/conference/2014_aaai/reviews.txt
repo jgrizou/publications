@@ -1,0 +1,168 @@
+----------------------- REVIEW 1 ---------------------
+PAPER: 1417
+TITLE: BCI Based Control Without Explicit Calibration
+AUTHORS: (anonymous)
+
+1. Technical Quality: 2 (problematic, a factor in rejecting the paper)
+2. Experimental analysis: 2 (problematic, a factor in rejecting the paper)
+3. Formal analysis: 3 (adequate, not a basis for accepting or rejecting the paper)
+4. Clarity/presentation: 1 (flawed, a sufficient basis for rejecting the paper)
+5. Novelty/innovation of question addressed: 4 (positive, a factor in accepting the paper)
+6. Novelty/innovation of application: 4 (positive, a factor in accepting the paper)
+7. Novelty/innovation with respect to aspects of human-level   intelligence, complex cognition, or similar topics (Cognitive  Systems): 3 (adequate, not a basis for accepting or rejecting the paper (or not applicable))
+8. Novelty/innovation of solution proposed: 3 (adequate, not a basis for accepting or rejecting the paper (or not applicable))
+9. Breadth of interest to the AI community: 4 (positive, a factor in accepting the paper)
+10. Potential for impact to practical applications: 4 (positive, a factor in accepting the paper)
+
+----------- QUALITY JUSTIFICATION -----------
+The authors use a lot of terminology without providing precise
+definitions.  A few examples are below:
+
+"hallucinate different virtual labels"  what does this mean?
+
+"... it is possible to build the underlying distributions for each
+possible target."  unclear
+
+Figure 1: if this is a 1-D action space, what is the 2-dimensional
+space being shown in the bottom part of the figure?
+
+Simultaneous estimation of task and signal model section: a lot of
+different pieces are presented.  However, it is not very clear how
+they fit together.
+
+"U(s,a)" is used on page 4 without being defined.
+
+"during stage 1": it is not clear what this refers to.
+
+------------------------------
+
+The authors spend text talking about their use of RL to generate
+action sequences to a hypothesized goal.  But, with such simple
+environments, many different planners would do.
+
+----------- NOVELTY/INNOVATION JUSTIFICATION -----------
+The problem of implementing BCIs without explicit calibration is
+important and difficult.  The general approach to solving this form of
+BCI problem may be on the right track.
+
+----------- IMPACT JUSTIFICATION -----------
+Solving this problem could be a key step in deploying BCIs to the real
+world.
+
+----------- SUMMARY OF REVIEW FOR AUTHORS -----------
+The authors propose an approach to the problem of interpreting EEG
+signals for control without explicit calibration.  An intervening
+agent uses a guess about the current (unknown) goal of the user to
+produce actions in a primitive action space.  Based on BCI-received
+feedback of whether the primitive actions are correct, the agent
+may modify its estimate of the goal.  Once the goal is reached, the
+feedback decoder is updated to be more consistent with the putative
+feedback from the user.  
+
+This is an important problem to be solved in the area of brain-machine
+interfaces (and a difficult one).  It may very well be the case that
+the authors are making good progress on this problem.  However, the
+paper is written in a vague enough way that it is hard to assess the
+true details of the approach and the experimental results (some
+details above).  
+
+Experiments: does the learning system know when the goal is reached?
+What does "probability of target task" mean, specifically in figure 2?
+
+Experiment 1: What does it mean that the target task is chosen
+randomly?  Does the experiment control system decide this or is the
+task self-selected by the user?  The authors don't compare their
+approach to any others (including a baseline approach).  What if the
+agent were to simply perform a random walk - would figure 2 look the
+same?
+
+Experiment 2: the conditions of the experiment & its evaluation are
+unclear.
+
+In general, no statistical analyses are performed to support the
+experimental results.
+
+----------------------- REVIEW 2 ---------------------
+PAPER: 1417
+TITLE: BCI Based Control Without Explicit Calibration
+AUTHORS: (anonymous)
+
+1. Technical Quality: 4 (positive, a factor in accepting the paper)
+2. Experimental analysis: 4 (positive, a factor in accepting the paper)
+3. Formal analysis: 4 (positive, a factor in accepting the paper)
+4. Clarity/presentation: 3 (adequate, not a basis for accepting or rejecting the paper)
+5. Novelty/innovation of question addressed: 2 (problematic, a factor in rejecting the paper)
+6. Novelty/innovation of application: 3 (adequate, not a basis for accepting or rejecting the paper (or not applicable))
+7. Novelty/innovation with respect to aspects of human-level   intelligence, complex cognition, or similar topics (Cognitive  Systems): 3 (adequate, not a basis for accepting or rejecting the paper (or not applicable))
+8. Novelty/innovation of solution proposed: 3 (adequate, not a basis for accepting or rejecting the paper (or not applicable))
+9. Breadth of interest to the AI community: 3 (adequate, not a basis for accepting or rejecting the paper (or not applicable))
+10. Potential for impact to practical applications: 3 (adequate, not a basis for accepting or rejecting the paper (or not applicable))
+
+----------- QUALITY JUSTIFICATION -----------
+The technical and presentation quality of this paper is adequately positive.
+
+----------- NOVELTY/INNOVATION JUSTIFICATION -----------
+This paper contributes a methodology for solving sequential tasks without any calibration. While I understand the importance of this problem, it's not completely novel.
+
+----------- IMPACT JUSTIFICATION -----------
+This paper makes a small, yet important contribution.
+
+----------- SUMMARY OF REVIEW FOR AUTHORS -----------
+The paper is well written and well justified. It makes an important contribution to BCI, yet the contribution to the AI community is not quite as clear.
+
+----------------------- REVIEW 3 ---------------------
+PAPER: 1417
+TITLE: BCI Based Control Without Explicit Calibration
+AUTHORS: (anonymous)
+
+1. Technical Quality: 5 (ground-breaking (top 15%), a sufficient basis for accepting the paper)
+2. Experimental analysis: 4 (positive, a factor in accepting the paper)
+3. Formal analysis: 4 (positive, a factor in accepting the paper)
+4. Clarity/presentation: 4 (positive, a factor in accepting the paper)
+5. Novelty/innovation of question addressed: 6 (exceptional (top 5%), a strong basis for accepting the paper)
+6. Novelty/innovation of application: 3 (adequate, not a basis for accepting or rejecting the paper (or not applicable))
+7. Novelty/innovation with respect to aspects of human-level   intelligence, complex cognition, or similar topics (Cognitive  Systems): 3 (adequate, not a basis for accepting or rejecting the paper (or not applicable))
+8. Novelty/innovation of solution proposed: 6 (exceptional (top 5%), a strong basis for accepting the paper)
+9. Breadth of interest to the AI community: 4 (positive, a factor in accepting the paper)
+10. Potential for impact to practical applications: 5 (groundbreaking (top 15%), a sufficient basis for accepting the paper)
+
+----------- QUALITY JUSTIFICATION -----------
+* Please consider mentioning the character of your study (online and offline) in the abstract.
+* Why did you make use of two channels only  (p4, right col)? SNR can significantly be reduced by exploiting ERPs from more channels...
+* The term "hallucinate" does not seem appropriate.
+* p1: "However, the approach needed for a ..." please re-formulate, e.g. "required"
+* It is all about collecting evidence over time - compared to the approach of Kindermans et al (who, by the way, has presented results from a first online study already, see below), you seem to trade in "multiple repetitions of the same action" (p1, right col) for something like "multiple decision steps to reach the one (true) goal". Maybe good to clarify this early on.
+*
+
+Biomed Tech 2013; 58 (Suppl. 1) 2013 by Walter de Gruyter · Berlin · Boston. DOI 10.1515/bmt-2013-4439
+ZERO TRAINING FOR BCI – REALITY FOR BCI SYSTEMS BASED ON EVENT-RELATED POTENTIALS
+Michael Tangermann, Pieter-Jan Kindermans, Martijn Schreuder,
+Benjamin Schrauwen, Klaus-Robert Müller
+
+* [Typos / missing articles / words]
+p1: "Error-related potential is one event-related...) -> The error-related potential is one event-related...
+p3: "distribution the parameters" -> distribution of the parameters
+    "When such prior is hard..." -> When such a prior is hard...
+* Check hyphenation (cal-ibration)  
+* p3, left col: "we do not have a priori on the..." please re-check. "knowledge" missing?
+* p4 left: please add figure with 5x5 task setup.
+* Value Iteration -> value iteration
+* p5: latter -> later on
+* p5: Please add an (at least short) description of T1 and T2.
+* p5, left col.: "Despite the fact that both .." please give details about the differences.
+* p5: "corresponding to taught task" -> corresponding to the taught task
+* p6 right col: "action that disambiguate among hypothesis" -> action that disambiguates among hypotheses
+References:
+* Please check all German Umlauts (Müller-Putz, Kübler..)
+* Please use upper-case for "EEG", "Gaussian", "ML" and journal names.
+* K.-R. Müller likes to be spelled with a dash between first names
+
+----------- NOVELTY/INNOVATION JUSTIFICATION -----------
+The completely unsupervised planning and training of an ErrP-based system is absolutely novel. The proposed metric of using "signal uncertainty" several steps ahead may be new, surely it is for this type of application. The community clearly needs to learn about this approach.
+The used experimental paradigm is rather simple, but suitable to to demonstrate the basic feasibility of the approach.
+
+----------- IMPACT JUSTIFICATION -----------
+For well-structured environments, the proposed ErrP-based exploration appraoch defines a novel direction of human-robot interaction. Thus the manuscript clearly helps to bridge the gap between BCI (Brain-Computer Interface) and the robotics community.
+
+----------- SUMMARY OF REVIEW FOR AUTHORS -----------
+A novel and clearly interesting approach to label-free training of human-robot interaction.

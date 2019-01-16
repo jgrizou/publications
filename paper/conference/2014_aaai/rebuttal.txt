@@ -1,0 +1,39 @@
+We thank the reviewers for their valuable comments. We will incorporate them in the paper.
+
+Reviewer1
+
+The main issue is that some terminology has not been properly explained and created some confusion about the technical details and the experiments. We try to clarify it here and will do the same in the paper.
+
+“Figure 1: if this is a 1-D action space”
+
+It is a 1D state space, but the feedback is represented (in this picture) as a two dimensional vector. Note that the state-space of the agent and the space of feedback (EEG) is different. 
+ 
+The figure aimed at summarizing in a single figure the main idea of the paper: different tasks provide different labels. For a discrete number of tasks, it is possible to use these labels to compute the distributions of the features representing correct and wrong actions. Labels of the right task are coherent while the others result in less separable distributions. This fact can be used as a metric to identify the task that the user wants to solve and a model for the feedback.
+
+“does the learning system know when the goal is reached? What does probability of target task" means in Fig2.
+
+This decision is based on a threshold on the task probabilities estimates. Fig 2 plots the estimate of the probability of the true task based on the Bhattacharyya coefficient for each experiment of each subject.
+
+“during stage 1” first time the system is used to reach a target.
+
+“Evaluation: comparison to baseline, random walk, statistical analyses and experiments”.
+
+In the discussion we compare the method with baseline approaches reported in related work which usually require around 400 trials for calibration. We are able to solve 20 tasks in this number of steps. Also, note that, since the tasks are correctly identified, classifiers will be identical to a baseline classifier (Fig 4, report accuracies which are similar to previous works).
+
+The random walk is reported in Fig2 (random actions). We found that the signal uncertainty exploration was significantly better than the random walk (unpaired two-tailed t-test, t(38)=-4.37,p=0.0001) (detailed statistical analysis will be included in the revised version)
+
+Four users performed the experiments in real-time. Online (Fig 2, five runs per subject) and offline analyses are provided. Offline analyses include mean and variance. They were performed by sampling correct/wrong signals according to the action-state pair. The most important metrics are:
+
+1- (Fig3) Comparison between different planning methods
+
+2- (Fig4) Accuracies similar to previous work using calibration despite some tasks may be misidentified (Fig 6).
+
+Reviewer2
+
+We thank the reviewer for the comments. We will like to point out that although the paper focuses on BCI, the algorithm can be applied to other setups where feedback to the agent requires calibration (e.g. using language or facial expressions).
+
+
+Reviewer3
+
+Thank you for the valuable comments and references. We will integrate the suggested comment on the difference of our work and the one of Kindermans et al.
+

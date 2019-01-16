@@ -1,0 +1,69 @@
+\documentclass[]{article}
+\usepackage{proceed2e}
+
+\title{Interactive Learning from Unlabeled Instructions}
+
+\author{
+\bf{Jonathan Grizou} \\ Inria Bordeaux Sud-Ouest, France \\ jonathan.grizou@inria.fr
+\And \bf{I\~naki Iturrate} \\ CNBI, EPFL, Switzerland \\ inaki.iturrate@epfl.ch
+\AND \bf{Luis Montesano} \\ I3A, Univ. of Zaragoza, Spain \\ montesano@unizar.es
+\And \bf{Pierre-Yves Oudeyer} \\ Inria Bordeaux Sud-Ouest, France \\ pierre-yves.oudeyer@inria.fr
+\And \bf{Manuel Lopes} \\ Inria Bordeaux Sud-Ouest, France \\ manuel.lopes@inria.fr
+}
+
+\usepackage{times}
+\usepackage{cite} 
+
+\usepackage{tikz} 
+\usepackage{varwidth}
+\usepackage{paralist}
+\usepackage{comment}
+
+\usepackage{algorithm}
+\usepackage{algorithmic}
+	
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage{caption}
+\usepackage{subcaption}
+% \usepackage{fixltx2e}
+% \usepackage{dblfloatfix} 
+
+\usepackage{color}
+\newcommand{\todo}[1]{{\small\color{red}[#1]}}
+
+\renewcommand{\L}{\mathcal{L}}
+\newcommand\independent{\protect\mathpalette{\protect\independenT}{\perp}}
+\def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
+\newcommand{\argmax}{\operatornamewithlimits{argmax}}
+\newcommand{\argmin}{\operatornamewithlimits{argmin}}
+
+ \begin{document}
+\maketitle
+\begin{abstract}
+\input{abstract}
+\end{abstract}
+
+\input{introduction}
+\input{algorithm}
+% \input{implementation}
+\input{planning}
+\input{results}
+\input{conclusion}
+
+% \newpage
+
+\section*{Acknowledgments}
+We thank the anonymous reviewers for their helpful comments. Work partially supported by INRIA, Conseil R\'egional d'Aquitaine, the 3rd Hand Project (funded under 7th FWP), and the ERC grant EXPLORERS 24007; and from the Spanish Ministry via DPI2011-25892 (L.M.), and DGA-FSE grupo T04.
+
+% The authors from INRIA are with the Flowers Team, a join INRIA - Ensta ParisTech lab, France. Luis Montesano is with Instituto de Investigaci\'{o}n en Ingenier\'{i}a de Sistemas, Universidad de Zaragoza, Spain. I\~{n}aki Iturrate is with the Chair in Non-invasive Brain-Machine Interface (CNBI) and Center for Neuroprosthetics and Institute of Bioengineering, EPFL, Switzerland.
+
+\bibliographystyle{ieeetr}
+\bibliography{uai}
+
+\end{document}
+

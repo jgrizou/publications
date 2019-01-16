@@ -1,0 +1,85 @@
+%### IEEE ###
+\documentclass[conference]{IEEEtran}
+  % Use this line for a4 paper
+%\IEEEoverridecommandlockouts
+  % Needed if you want to use the \thanks command
+%\overrideIEEEmargins
+  % Needed to meet printer requirements.
+ 
+\usepackage{algorithm}
+\usepackage{algorithmic}
+	
+\usepackage{amsmath}
+\usepackage{amsfonts}
+	
+\usepackage{graphics}
+\usepackage{graphicx}
+%\usepackage[lined,boxed,commentsnumbered]{algorithm2e}
+
+%\usepackage{hyperref}
+\usepackage{verbatim}
+
+\renewcommand{\L}{\mathcal{L}}
+
+\usepackage{color}
+\newcommand{\todo}[1]{{\small\color{red}[#1]}}
+
+%CHEAT CODES
+\renewcommand{\baselinestretch}{.987}
+\renewcommand{\textfloatsep}{0.88ex}
+
+
+\begin{document}
+
+% can use linebreaks \\ within to get better formatting as desired
+\title{Robot Learning Simultaneously a Task and \\ How to Interpret Human Instructions}
+
+
+% author names and affiliations
+% use a multiple column layout for up to three different
+% affiliations
+\author{
+\IEEEauthorblockN{Jonathan Grizou}
+\IEEEauthorblockA{Flowers Team\\
+ INRIA / ENSTA-Paristech\\
+France\\
+jonathan.grizou@inria.fr}
+\and
+\IEEEauthorblockN{Manuel Lopes}
+\IEEEauthorblockA{Flowers Team\\
+INRIA / ENSTA-Paristech\\
+France\\
+manuel.lopes@inria.fr}
+\and
+\IEEEauthorblockN{Pierre-Yves Oudeyer}
+\IEEEauthorblockA{Flowers Team\\
+INRIA / ENSTA-Paristech\\
+France\\
+pierre-yves.oudeyer@inria.fr}
+}
+
+
+%\thanks{The authors are with the Flowers Team, an INRIA and ENSTA-Paristech joint-lab. Work (partially) supported by INRIA, Conseil R\'egional d'Aquitaine and the ERC grant EXPLORERS 24007.}}
+
+
+\maketitle
+
+\begin{abstract}
+This paper presents an algorithm to bootstrap shared understanding in a human-robot interaction scenario where the user teaches a robot a new task using teaching instructions yet unknown to it. In such cases, the robot needs to estimate simultaneously what the task is and the associated meaning of instructions received from the user. For this work, we consider a scenario where a human teacher uses initially unknown spoken words, whose associated unknown meaning is either a feedback (good/bad) or a guidance (go left, right, ...). We present computational results, within an inverse reinforcement learning framework, showing that a) it is possible to learn the meaning of unknown and noisy teaching instructions, as well as a new task at the same time, b) it is possible to reuse the acquired knowledge about instructions for learning new tasks, and c) even if the robot initially knows some of the instructions' meanings, the use of extra unknown teaching instructions improves learning efficiency.
+\end{abstract}
+\maketitle
+\input{intro}
+\input{alg}
+\input{experiments}
+\input{conclusions}
+%
+\section*{Acknowledgement}
+The authors would like to thanks Pierre Rouanet for his useful comments, as well as J\'er\^{o}me Bechu for his help with the robotic platform. Work (partially) supported by INRIA, Conseil R\'egional d'Aquitaine and the ERC grant EXPLORERS 24007.
+
+%### IEEE ###
+\bibliographystyle{IEEEtran}
+\bibliography{complete,macl,newref}
+
+
+
+\end{document}

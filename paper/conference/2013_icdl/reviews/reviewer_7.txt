@@ -1,0 +1,5 @@
+Strong Accept
+
+The paper addresses an interesting problem - that of a robot simultaneously learning a task and the particular way in which a given human will provide teaching instructions. Some assumptions and provisions needed to be made; in particular the task must already be known to the robot (in the sense that that robot can, at a minimum, approximate it with tasks it already knows). I am not aware of similar work and the approach appears thorough and correct.
+
+I have no strong criticisms of the paper in its current form given the targeted venue. The paper does however contain a large number of typos and linguistic mistakes. I would suggest that the authors have the text checked by a native English speaker.

@@ -1,0 +1,111 @@
+%!TEX root = aaai2014.tex
+\section{Implementation}
+\subsection{Task}
+
+We have a 5x5 grid world modeled as a MDP, with known Transisiton proba. Non stochastic transition.
+One task is defined as a reward of one in one state. There is 25 states, hence 25 task hypothesis.
+The optimal policy, that the user is supposed to use as reference, is computed using Value Iteration by acting greedy on the Q-Values.
+
+\subsection{Expected label}
+\begin{equation*}
+    p(l^\xi | s, a, \xi) = 
+    \begin{cases}
+	1-\alpha               & if~a = \argmax_a \pi^{\xi}(s,a)\\
+        \alpha             & \text{otherwise}\\
+   \end{cases}
+\end{equation*}
+with $\alpha$ modeling the expected error rate of the user. I am using an alpha of $0.1$.
+
+\subsection{Classifier}
+\subsubsection{Training}
+
+One mean and covariance per class. I compute the weighted mean and weighted covariance for each label using $p(l^\xi | s, a, \xi)$ as weights. I then apply skrinkage to the covariance, I use an $\lambda = 0.5$.
+
+\textbf{What can be discussed:} \\
+\\
+Weighted mean: $\bar{x}^* = \frac{\sum_{i=1}^n w_i x_i}{\sum_{i=1}^n w_i}$
+\\
+\\
+Weighted covariance: I use $\sum w_i (x - \bar{x}^*)^T  (x - \bar{x}^*) / \sum w_i$. This is a biased estimation. It may be better to divide by $\sum w_i - 1$ which is called Bessel correction. Actually it seems there is an other version for the factor $\frac{\sum_{i=1}^n w_i}{(\sum_{i=1}^n w_i)^2-(\sum_{i=1}^n {w_i^2})}$ which seems to be more suited. I do not think this is important.
+\\
+\\
+Shrinkage: $regCov = (1 - lambda) * cov + (lambda / length(cov)) * trace(cov) * eye(size(cov))$
+
+\subsubsection{Testing}
+
+For one signal $e$, I compute the value of the marginal pdf function using the non-informative prior for each labels $z$: $p(e|\theta, l=z) = \int p(e|\theta, l=z) d\theta$.
+
+The integral above is the following equation, I took it from murphy technical notes and tested my implementation on various test bench:
+\begin{eqnarray}
+p(e|\theta) = t_{n-d}(e | \bar{x}, \frac{S (n+1)}{n(n-d)})
+\end{eqnarray}
+where for a given class $z$:\\
+\begin{itemize}
+\item $n$ is the number of point in $x$
+\item $d$ is the dimensionality of the data
+\item $x$ is the data I use to train, $\bar{x}$ is the mean. I use the weigthed mean here.
+\item $S = \sum_{i} (x_i - \bar{x}) (x_i - \bar{x})^T$ is the covariance. I use the weigthed covariance here.
+\end{itemize}
+This can only be computed after d+1 step, i.e. 35 points in our EEG case.
+
+\textbf{What can be discussed:} As I am computing the weighted mean and covariance, $n$ is hard to define. If I was using non-weighted labels, then I could only start computing things after at least 70 iterations. And this is only in the best case, in reality we have many hypothesis with different labeling, it is more probable we would need at least 100 points to start using the classifiers. I am using $n$ equal to the number of steps. 
+
+
+Finally to compute $p(l = j | e, \theta) = \frac{p(e|\theta, l=j)}{\sum_z p(e|\theta, l=z)}$
+
+\subsubsection{Correcting}
+
+The prediction of the classifer may be wrong, the fact the classifier output probabilistic label is not a solution to this problem. If it predict 100\% one label is can still be wrong. We model this using the confusion matrix. I am using a probabilistic version of the confusion matrix (which reduces to counting true positive, true negative, \ldots if non-proabilisitc label and prediction).
+
+\begin{eqnarray}
+Conf(i,j) &=& \frac{\sum_{k \in 1:N} p(l_k = i \cap l = j| s_k, a_k, \xi, e_k, \theta)}{N} \nonumber \\
+&=& \frac{\sum_{k \in 1:N} p(l_k = i| s_k, a_k, \xi) p(l = j| e_k, \theta)}{N} \nonumber \\
+\end{eqnarray}
+with $p(l_k = i| s_k, a_k, \xi)$ the labels used to train, and $p(l = j| e, \theta)$ the label predicted from the classifier.
+
+I am estimating the confusion matrix via a 10 folds cross validation procedure.
+
+\textbf{What can be discussed:} Why not a ``hard'' confusion matrix, i.e.\ counting the number of true positive, true negative, \ldots ? The probabilisitic is more precise. For ``hard'' confusion matrix, consider the case of one classifier that always output 51/49 or 49/51 percent proba but is always as correct the ``hard'' way than an other that is 99/1 or 1/99 percent. It depends on the context, in ours we prefer a probabilisitic version of the confusion matrix which will differentiate such cases.
+
+From the confusion matrix, we can compute the corrected probability of one label given the probability outputted by the classifier.
+
+\begin{eqnarray}
+p(l = i | l^\theta = j)  = \frac{Conf(i,j)}{\sum_i Conf(i,j)} \nonumber \\
+\end{eqnarray}
+
+In practise it is easier to directly normalize the confusion matrix per column, i.e. column sums to one.
+
+\subsection{Algo}
+
+
+\begin{enumerate}
+\item perform action $a$ in state $s$
+\item collect signal $e$
+\item for each hypothesis $\xi$, assign label $p(l^\xi | s, a, \xi)$.
+\item for each hypothesis $\xi$, train a classifier $\theta^\xi$
+\item for each  hypothesis $\L(\xi) = 1$
+\item repeat from step 1 until ready to compute stuff
+\item perform action $a$ in state $s$
+\item collect signal $e$
+\item for each hypothesis $\xi$, assign label $p(l^\xi | s, a, \xi)$.
+\item for each hypothesis $\xi$, use previously trained classifier to estimate $p(l^{\theta^\xi} | e, \theta^\xi)$
+\item for each hypothesis $\xi$, correct $p(l^{\theta^\xi} | e, \theta^\xi)$ with the confusion matrix. for each i, correct $p(l = i | l^\theta) = \sum_{j} p(l = i | l^\theta = j) p(l^\theta = j)$ with  $p(l = i | l^\theta = j) = \frac{Conf(i,j)}{\sum_i Conf(i,j)}$, we call the corrected label $p(l^U | e, \theta^\xi)$
+\item update each hypothesis likelihood by the joint probability that predicted label equal expected label: $\L^\xi = \L^\xi * \sum_l p(l^\xi = l | s,a,\xi) p(l^U = l| e, \theta^\xi)$.
+\item for each hypothesis $\xi$, train a new classifier $\theta^\xi$ including all data
+\item go to step 7
+\end{enumerate}
+
+
+\subsection{Stopping criterion}
+
+I changed the stopping criterion. We want the best hypothesis to be X times more likely than all the other. In other word the min of the likelihood ratio should be above a threshold. I am using a threshold of 0.9.
+
+\begin{eqnarray}
+\argmin_{t~\in~T \smallsetminus \{x\}} \frac{\L^{\xi_x}}{\L^{\xi_t}}
+\end{eqnarray}
+
+\textbf{What can be discussed:} Why not normalizing likelihoods ? Consider two cases: a) two hypothesis only, likelihoods are [0.45, 0.05], normalized likelihood is [0.9,0.1], min likelihood ratio [0.9, 0.111]; b) four hypothesis [0.45, 0.05, 0.05, 0.05], normalized likelihoods are [0.75, 0.083, 0.0833, 0.083], min likelihood ratio [0.9, 0.111, 0.111, 0.111]. Scale it to 1000 hypothesis and the normalized likelihood takes huge amount of time to reach a specific threshold. Normalized likelihood would require to change the threshold for every scenario. The likelihood ratio solves this problem and make sure one hypothesis likelihood is X times more likely that all others on an individual bases.
+
+\subsection{After confidence reached}
+
+We plan greedy to the target. Then we assign all the past labels of the target hypothesis to all other hypothesis and start again. The classifier are now all the same which make the algorithm identical to one using only calibratoin, except that in our case step after step hypothesi classifiers will start to differ again. Which have nice effects on the number of error compared to fixed classifier.

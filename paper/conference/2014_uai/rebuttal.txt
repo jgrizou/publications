@@ -1,0 +1,59 @@
+We thank the reviewers for their valuable comments. We will incorporate them in the paper.
+
+##Assigned_reviewer_10
+
+We thank the reviewer for pointing out several issues with some terminology and notations. We try to clarify it here and will do the same in the paper.
+
+Comparing to Grizou et al., we propose an uncertainty measure on both the task and the signal model that is adapted to the specificity of the problem which allow to guide the system towards more informative states allowing for a faster learning. In they work they considered only random and e-greedy strategies. 
+
+In addition, our approach allows to seamlessly transition from task to task without changing the algorithm paradigm. Grizou at al. method requires a different set of equations for the first task than for the further ones where only a fixed classifier, common for all hypothesis, is considered. We are here continuously taking advantage of the task hypothesis even after the first task is identified. **[maybe we can remove that paragraph, once again we did not run the comparison so we cannot argue with numbers]**
+
+Concerning the notations:
+
+The order of the triplet have no reason to change. As well for D_i to be "upperscripted" by \xi_t. 
+ In (4), N should be M.
+In (6), argmin should be min.
+
+We consider discrete action space and either discrete or a continuous state space. What really matters is the ability for the system to evaluate an action as optimal or not wrt. an hypothesized task.
+
+p(\xi_t | D_0^\xi_t) in eq.(3) is the prior at time 0 (before the experiment start) for the task \xi_t, usually uniform over the task distribution. Equation (1) represents a general update rule, therefore p(\xi_t) is indeed the prior but is not specified in time to keep it general.
+
+l_c is the label corrected based on what we know about a classifier (reflected by its confusion matrix). It is the probability that the classifier itself is reliable or not in its prediction.
+
+From the definition of (7)-(9), only one term of the pseudo-likelihood is used? J^{\xi_t}(s,a,e) is the value from eq.(4) (that is detailed in eq.(5)) but only for the new expected observation $e$, so the product over iterations disappears.
+
+\theta in (10) is indeed a probability distribution over some parameters, it should be given an other name. However it remains the same idea, \theta is representing a classifier.
+
+**[what does \xi_{1:i} mean? this is indeed a bit abrupt, we want to say that if we knew what task the user had in mind at every time step, we could infer \theta. 
+Maybe we can even remove this from the paper?]**
+
+
+##Assigned_reviewer_4
+
+We thank the reviewer for the valuable comments. 
+
+The mapping between signal $e$ and their label $l$ is fixed, however this mapping is unknown to the agent at start.
+The usual approach to find this mapping is to use a calibration procedure which collects pairs of signal/label used to train a classifier. To do so, while calibrating, the task is assumed to be known in order to know the labels of the received signals. Indeed, if we know the target state, moving closer to it should elicit the user to generate a signal of label "correct". It is only once we have collected enough signal/label pair that we can train the classifier and use it to learn an unknown task. 
+In this work, both the classifier and the task are unknown at start. To solve the problem we generate hypothesis on the possible tasks, and label the signals accordingly. Therefore, we simulate the process of having a different signal model for each task only to find out which one is actually the more likely to be the correct one, the one whose label match with the spacial organization of signals.
+
+What is nice with the method is that once it identify a first task, then we can reconsider all the past interaction to infer the labels of signals. As stated before, if we know the task, we can infer the labels of the received signals. Therefore the labels of the identified task can be transfered to all the hypothesis and it becomes easier to identify further tasks.
+
+To identify if signals and labels are coherent, equation (4) proposes to test the predictive ability of a classifier trained on the signal/label pairs. The use of \theta_{-i} indicates we use a leave one out method.
+
+Random is indeed a hard to beat strategy in a 5x5 grid world. As depicted in fig.1, we need to collect two types of information, some about the true underlying model (fig.1b) and some to differentiate between hypothesis (fig.1a). The properties of the grid world makes the random strategy quite efficient at collecting various types of information. However for navigating a complex maze it will be far less efficient. Our method allow to plan in order to collect the various information we need, the grid world is actually one of the worst example to fight with random but we still manage to outperform it. Studying how different world properties affect the learning efficiency is part of our future work.
+We note that all planning method were switched to pure exploitation (greedy) once the confidence level was reached. Therefore the performance compares the ability of the different methods to discriminate between different task hypothesis, not their ability to solve the task themselves.
+Also the use of a grid world was motivated to stay as close as possible with the experimental setup in BCI works using Error-Related potential [8][21].
+
+**[What about his concern about optimality. I don't know how to answer this, we will probably never do this.
+My opinion is that maybe someone could prove that we converge to the true hypothesis at an infinite horizon considering the signal are generated from Gaussian distributions..However by considering symbolic signal we might go further]**
+
+
+##Assigned_Reviewer_6
+
+We thank the reviewer for the valuable comments. We consider an 5x5 gridworld task where an agent can perform five different discrete actions: move up, down, left, right, or stay action. The user goal is to teach the agent to reach one, yet unknown to the agent, of the 25 discrete states which represent the set of possible tasks (i.e. one task per possible target state). We thus consider that the agent has access to 25 different task hypotheses. We use Markov Decision Processes (MDP) to represent the problem (Sutton and Barto 1998). From a given task, represented as a reward function, we can compute the corresponding policy using, for instance, Value Iteration (Sutton and Barto 1998).
+
+The number of tasks hypothesis is indeed a limiting factor but we managed to perform online experiments with up to 700 hundreds hyptohesis in parallel whose optimal policies were computed beforehand. Going to a continuous task space is more challenging and has not been thoroughly investigated yet, a potential avenue is to use a combination of particle filter and regularization on the task space.
+
+Concerning the use of only correct/incorrect labels, in other works we considered the use of guidance instructions (go up, go left, ...) in human-robot interaction scenario which works well too. However increasing the set of possible labels logically requires to collect more examples to obtain a good enough representation of the different signals. For the acceptability and usefulness in real word scenario, such as the BCI domain, it is therefore more reasonable to keep with a limited number of labels.
+
+
